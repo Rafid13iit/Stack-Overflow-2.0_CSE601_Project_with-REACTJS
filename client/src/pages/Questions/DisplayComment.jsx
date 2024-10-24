@@ -1,45 +1,51 @@
+// DisplayComment.jsx
 import React from 'react';
 import { Link, useParams } from 'react-router-dom';
 import moment from 'moment';
 import { useDispatch, useSelector } from 'react-redux';
-import { deleteQuestioncom } from '../../actions/question'
+import { deleteQuestioncom } from '../../actions/question';
 
-const DisplayComment = ({question }) => {
-
-  const User = useSelector((state) => (state.currentUserReducer));
+const DisplayComment = ({ question }) => {
+  const User = useSelector((state) => state.currentUserReducer);
   const dispatch = useDispatch();
-  const { id } = useParams()
+  const { id } = useParams();
 
-  const handleDeletee = (quecommentId) =>{
-    dispatch(deleteQuestioncom(id, quecommentId))
+  const handleDeletee = (quecommentId) => {
+    dispatch(deleteQuestioncom(id, quecommentId));
   }
-  
-  return (  
-    <div>
-        {
-            question.comment.map((com) => (
-                <div className="display-ans" key={com._id} style={{display: "flex"}}>
-                     <p className='comment-ans'><span><Link to={`/Users/${com.userId}`} style={{color: "#0086d8", textDecoration: "none"}}>{com.userCommented}</Link></span> &nbsp; {com.commentBody} &nbsp;
-                     <small>{moment(com.commentedOn).fromNow()}</small></p>  
-                     {
-                      User?.result?._id === com?.userId && (
-                          <button type='button' onClick={() => handleDeletee(com._id)} style={{
-                            backgroundColor: "transparent",
-                            border: "none",
-                            padding: "5px 0px",
-                            paddingLeft: "6px",
-                            margin: "0px 10px 0px 0px",
-                            cursor: "pointer",
-                            fontSize: "14px",
-                            color: "#DC143C",
-                      }}>Delete</button>
-                  )
-              }     
-                </div>
-            ))
-        }
+
+  return (
+    <div className="space-y-2 mt-4">
+      {question.comment.map((com) => (
+        <div 
+          key={com._id} 
+          className="flex items-start justify-between py-3 px-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+        >
+          <div className="flex-1 text-sm">
+            <Link 
+              to={`/Users/${com.userId}`} 
+              className="font-medium text-blue-600 hover:text-blue-800 transition-colors"
+            >
+              {com.userCommented}
+            </Link>
+            <span className="mx-2 text-gray-700">{com.commentBody}</span>
+            <span className="text-gray-500 text-xs">
+              {moment(com.commentedOn).fromNow()}
+            </span>
+          </div>
+          {User?.result?._id === com?.userId && (
+            <button 
+              type='button' 
+              onClick={() => handleDeletee(com._id)}
+              className="ml-4 text-xs text-red-500 hover:text-red-700 transition-colors"
+            >
+              Delete
+            </button>
+          )}
+        </div>
+      ))}
     </div>
-  )
+  );
 }
 
-export default DisplayComment
+export default DisplayComment;

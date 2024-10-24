@@ -1,23 +1,23 @@
-import React from 'react'
+import React from 'react';
 
-const Avatar = ({children ,backgroundColor, px, py, color, borderRadius, fontSize, cursor}) => {
-
+const Avatar = ({ children, backgroundColor, px, py, color, borderRadius, fontSize, cursor }) => {
+  const baseClasses = `text-center ${cursor || 'default'} text-decoration-none`;
+  
   const style = {
     backgroundColor,
     padding: `${py} ${px}`,
-    color: color || 'black',
     borderRadius,
     fontSize,
-    textAlign: "center",
-    cursor: cursor || null,
-    textDecoration: "none"
-  }
+  };
 
   return (
-    <div style={style}>
-    {children}
+    <div
+      className={`${baseClasses} bg-${backgroundColor} inline-block`} 
+      style={style}
+    >
+      {children}
     </div>
-  )
+  );
 }
 
-export default Avatar
+export default Avatar;

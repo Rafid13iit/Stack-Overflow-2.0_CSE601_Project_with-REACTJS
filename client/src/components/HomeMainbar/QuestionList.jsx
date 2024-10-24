@@ -1,16 +1,14 @@
-import React from 'react'
-import Questions from './Questions'
+import React from 'react';
+import Questions from './Questions';
 
-const QuestionList = ({questionsList}) => {
+const QuestionList = ({ questionsList }) => {
   return (
     <>
-      {
-        questionsList.map((question) =>(
-          <Questions question = {question} key={question._id}/>
-        ))
-      }
+      {questionsList.map((question) => (
+        <Questions question={question} key={question._id} />
+      ))}
     </>
-  )
-}
+  );
+};
 
-export default QuestionList
+export default QuestionList;
