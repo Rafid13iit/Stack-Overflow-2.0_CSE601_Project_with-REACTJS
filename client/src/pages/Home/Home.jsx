@@ -8,7 +8,7 @@ const Home = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-white">
+    <div className="min-h-screen bg-orange-50">
       <div className="max-w-[1800px] mx-auto relative">
         {/* Mobile Sidebar Overlay */}
         {isMobileMenuOpen && (

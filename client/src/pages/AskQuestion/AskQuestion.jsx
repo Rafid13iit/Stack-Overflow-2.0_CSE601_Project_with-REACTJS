@@ -1,39 +1,27 @@
-import React, { useState } from 'react'; 
+import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { HelpCircle, Tag as TagIcon, Type, FileText, AlertCircle } from 'lucide-react';
+import { HelpCircle, Tag as TagIcon, Type, FileText } from 'lucide-react';
 import Background from '../../assets/background.svg';
 import { askQuestion } from '../../actions/question';
-import './AskQuestion.css';
 
 const AskQuestion = () => {
   const [questionTitle, setQuestionTitle] = useState('');
   const [questionBody, setQuestionBody] = useState('');
   const [questionTags, setQuestionTags] = useState('');
-  const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   
   const dispatch = useDispatch();
   const User = useSelector((state) => state.currentUserReducer);
   const navigate = useNavigate();
 
-  const validateForm = () => {
-    const newErrors = {};
-    if (!questionTitle.trim()) newErrors.title = 'Title is required';
-    if (!questionBody.trim()) newErrors.body = 'Question body is required';
-    if (!questionTags) newErrors.tags = 'At least one tag is required';
-    
-    if (questionTags && questionTags.length > 5) {
-      newErrors.tags = 'Maximum 5 tags allowed';
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
+    
+    if (!questionTitle.trim() || !questionBody.trim() || !questionTags.trim()) {
+      alert('Please fill in all fields');
+      return;
+    }
 
     setIsSubmitting(true);
     try {
@@ -52,21 +40,9 @@ const AskQuestion = () => {
 
   const handleEnter = (e) => {
     if (e.key === 'Enter') {
-      setQuestionBody(questionBody + "\n");
+      setQuestionBody(prev => prev + "\n");
     }
   };
-
-  const InputWrapper = ({ children, error }) => (
-    <div className={`relative group ${error ? 'shake-animation' : ''}`}>
-      {children}
-      {error && (
-        <p className="flex items-center gap-1 absolute -bottom-6 left-0 text-xs text-red-500 font-medium">
-          <AlertCircle className="w-4 h-4" />
-          {error}
-        </p>
-      )}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50 py-12 px-4">
@@ -89,63 +65,57 @@ const AskQuestion = () => {
 
           <form onSubmit={handleSubmit} className="space-y-8">
             <div className="space-y-6">
-              <InputWrapper error={errors.title}>
-                <label className="block space-y-2">
-                  <div className="flex items-center gap-2">
-                    <Type className="w-5 h-5 text-orange-500" />
-                    <span className="font-semibold text-gray-700">Title</span>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Be specific and imagine you're asking a question to another person
-                  </p>
-                  <input 
-                    type="text" 
-                    value={questionTitle}
-                    onChange={(e) => setQuestionTitle(e.target.value)}
-                    placeholder="e.g. Is there an R function for finding the index of an element in a vector?"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
-                  />
-                </label>
-              </InputWrapper>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <Type className="w-5 h-5 text-orange-500" />
+                  <label className="font-semibold text-gray-700">Title</label>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Be specific and imagine you're asking a question to another person
+                </p>
+                <input 
+                  type="text" 
+                  value={questionTitle}
+                  onChange={(e) => setQuestionTitle(e.target.value)}
+                  placeholder="e.g. Is there an R function for finding the index of an element in a vector?"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+                />
+              </div>
 
-              <InputWrapper error={errors.body}>
-                <label className="block space-y-2">
-                  <div className="flex items-center gap-2">
-                    <FileText className="w-5 h-5 text-orange-500" />
-                    <span className="font-semibold text-gray-700">Body</span>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Include all the information someone would need to answer your question
-                  </p>
-                  <textarea 
-                    value={questionBody}
-                    onChange={(e) => setQuestionBody(e.target.value)}
-                    onKeyPress={handleEnter}
-                    rows="10"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
-                    placeholder="Describe your problem in detail..."
-                  />
-                </label>
-              </InputWrapper>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-5 h-5 text-orange-500" />
+                  <label className="font-semibold text-gray-700">Body</label>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Include all the information someone would need to answer your question
+                </p>
+                <textarea 
+                  value={questionBody}
+                  onChange={(e) => setQuestionBody(e.target.value)}
+                  onKeyPress={handleEnter}
+                  rows="10"
+                  placeholder="Describe your problem in detail..."
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+                />
+              </div>
 
-              <InputWrapper error={errors.tags}>
-                <label className="block space-y-2">
-                  <div className="flex items-center gap-2">
-                    <TagIcon className="w-5 h-5 text-orange-500" />
-                    <span className="font-semibold text-gray-700">Tags</span>
-                  </div>
-                  <p className="text-sm text-gray-600">
-                    Add up to 5 tags to describe what your question is about
-                  </p>
-                  <input 
-                    type="text" 
-                    value={questionTags}
-                    onChange={(e) => setQuestionTags(e.target.value.split(" "))}
-                    placeholder="e.g. (xml typescript react)"
-                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
-                  />
-                </label>
-              </InputWrapper>
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <TagIcon className="w-5 h-5 text-orange-500" />
+                  <label className="font-semibold text-gray-700">Tags</label>
+                </div>
+                <p className="text-sm text-gray-600">
+                  Add up to 5 tags to describe what your question is about
+                </p>
+                <input 
+                  type="text" 
+                  value={questionTags}
+                  onChange={(e) => setQuestionTags(e.target.value)}
+                  placeholder="e.g. xml typescript react"
+                  className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-transparent transition-all duration-200 placeholder:text-gray-400"
+                />
+              </div>
             </div>
 
             <div className="flex items-center gap-4 pt-4">

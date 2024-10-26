@@ -1,4 +1,3 @@
-// QuestionsDetails.jsx
 import React, { useState } from 'react';
 import { Link, useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
@@ -11,38 +10,72 @@ import Avatar from '../../components/Avatar/Avatar';
 import DisplayAnswer from './DisplayAnswer';
 import { deleteQuestion, postAnswer, voteQuestion, postComment } from '../../actions/question';
 import DisplayComment from './DisplayComment';
+
+const QuestionsDetails = () => {
+  const { id } = useParams();
+  const questionsList = useSelector((state) => state.questionReducer);
+  const User = useSelector((state) => state.currentUserReducer);
+  const [Answer, setAnswer] = useState('');
+  const [show, setShow] = useState(false);
+  const [comment, setComment] = useState('');
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const location = useLocation();
+  const url = 'http://localhost:3000';
+
   const handlePostAns = (e, answerLength) => {
     e.preventDefault();
-    if (User === null) {
+    if (!User) {
       alert('Login or Signup to answer a question');
       navigate('/Auth');
-    } else {
-      if (Answer === '') {
-        alert('Enter an answer before submitting');
-      } else {
-        dispatch(postAnswer({ id, noOfAnswers: answerLength + 1, answerBody: Answer, userAnswered: User.result.name, userId: User.result._id }));
-      }
+      return;
     }
+
+    if (Answer === '') {
+      alert('Enter an answer before submitting');
+      return;
+    }
+
+    dispatch(
+      postAnswer({
+        id,
+        noOfAnswers: answerLength + 1,
+        answerBody: Answer,
+        userAnswered: User.result.name,
+        userId: User.result._id
+      })
+    );
+    setAnswer(''); // Clear the answer field after posting
   };
 
   const handlePostCom = (e) => {
     e.preventDefault();
-    if (User === null) {
+    if (!User) {
       alert('Login or Signup to answer a question');
       navigate('/Auth');
-    } else {
-      if (comment === '') {
-        alert('Enter a comment before submitting');
-      } else {
-        dispatch(postComment({ id, commentBody: comment, userCommented: User.result.name, userId: User.result._id }));
-        setShow(!show);
-      }
+      return;
     }
+
+    if (comment === '') {
+      alert('Enter a comment before submitting');
+      return;
+    }
+
+    dispatch(
+      postComment({
+        id,
+        commentBody: comment,
+        userCommented: User.result.name,
+        userId: User.result._id
+      })
+    );
+    setComment(''); // Clear the comment field after posting
+    setShow(true); // Show the comments after posting
   };
 
   const handleShare = () => {
     copy(url + location.pathname);
-    alert('Copied URL:' + url + location.pathname);
+    alert('Copied URL: ' + url + location.pathname);
   };
 
   const handleDelete = () => {
@@ -50,25 +83,22 @@ import DisplayComment from './DisplayComment';
   };
 
   const handleUpVote = () => {
+    if (!User) {
+      alert('Login or Signup to vote');
+      navigate('/Auth');
+      return;
+    }
     dispatch(voteQuestion(id, 'upVote', User.result._id));
   };
 
   const handleDownVote = () => {
+    if (!User) {
+      alert('Login or Signup to vote');
+      navigate('/Auth');
+      return;
+    }
     dispatch(voteQuestion(id, 'downVote', User.result._id));
   };
-
-const QuestionsDetails = () => {
-  const { id } = useParams();
-  const questionsList = useSelector((state) => state.questionReducer);
-  const [Answer, setAnswer] = useState('');
-  const [show, setShow] = useState(false);
-  const [comment, setComment] = useState('');
-  const User = useSelector((state) => state.currentUserReducer);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const location = useLocation();
-  const url = 'http://localhost:3000';
-
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -177,6 +207,7 @@ const QuestionsDetails = () => {
                     <textarea
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-shadow resize-y"
                       rows="6"
+                      value={Answer}
                       onChange={(e) => setAnswer(e.target.value)}
                       placeholder="Write your answer here..."
                     />

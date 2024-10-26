@@ -6,7 +6,7 @@ import RightSidebar from '../../components/RightSidebar/RightSidebar';
 
 const Questions = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-orange-50">
       <div className="max-w-7xl mx-auto flex">
         <div className="w-64 fixed h-screen border-r border-gray-200 bg-white">
           <LeftSidebar />

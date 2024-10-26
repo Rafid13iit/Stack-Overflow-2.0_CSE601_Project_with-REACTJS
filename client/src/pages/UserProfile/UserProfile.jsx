@@ -18,7 +18,7 @@ const UserProfile = () => {
 
   if (!currentProfile) {
     return (
-      <div className='flex min-h-screen bg-gray-50'>
+      <div className='flex min-h-screen bg-orange-50'>
         <LeftSidebar />
         <div className='flex-1 p-8 flex items-center justify-center'>
           <div className='text-center'>
@@ -31,14 +31,14 @@ const UserProfile = () => {
   }
 
   return (
-    <div className='flex min-h-screen bg-gray-50'>
+    <div className='flex min-h-screen bg-orange-50'>
       <LeftSidebar />
       <div className='flex-1 p-6 lg:p-8'>
         <div className='max-w-4xl mx-auto'>
           <section className='bg-white rounded-2xl shadow-md overflow-hidden'>
             {/* Cover Image */}
-            <div className='h-48 bg-gradient-to-r from-blue-500 to-purple-600'></div>
-            
+            <div className='h-48 bg-gradient-to-r from-orange-300 to-orange-500'></div>
+          
             {/* Profile Header */}
             <div className='px-8 pb-8'>
               <div className='flex flex-col lg:flex-row lg:items-end lg:justify-between -mt-16'>
