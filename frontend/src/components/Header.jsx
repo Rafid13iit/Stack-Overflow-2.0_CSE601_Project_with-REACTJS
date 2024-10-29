@@ -74,8 +74,7 @@ const Header = () => {
 
             {/* Navigation Links */}
             <nav className="flex items-center space-x-6">
-              <Link to="/questions" className="text-sm text-gray-600 hover:text-gray-900">Questions</Link>
-              <Link to="/tags" className="text-sm text-gray-600 hover:text-gray-900">Tags</Link>
+              <Link to="/posts" className="text-sm text-gray-600 hover:text-gray-900">Questions</Link>
               
               {/* Notification Bell */}
               <Link
