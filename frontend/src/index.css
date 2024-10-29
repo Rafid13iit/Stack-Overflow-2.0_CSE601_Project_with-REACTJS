@@ -1,0 +1,24 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Hero Section */
+.hero-section {
+    @apply bg-gradient-to-br from-blue-100 to-blue-300; /* Using Tailwind's gradient utilities */
+}
+
+.hero-card {
+    @apply border-none rounded-lg shadow-lg transition duration-300 ease-in-out; /* Added transition for hover effect */
+}
+
+.hero-card h1 {
+    @apply font-serif font-bold text-3xl; /* Adjust font size for better prominence */
+}
+
+.hero-card p {
+    @apply text-gray-600; /* Using Tailwind's text color utilities */
+}
+
+.hero-card button {
+    @apply bg-blue-600 text-white rounded-md text-lg py-2 px-4 transition duration-300 ease-in-out hover:bg-blue-700; /* Improved button styling with hover effect */
+}
