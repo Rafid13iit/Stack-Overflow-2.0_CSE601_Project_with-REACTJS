@@ -1,74 +1,88 @@
 import { useEffect, useState } from 'react';
-import { FaBell } from 'react-icons/fa';
-import axios from 'axios';
+import { Bell } from 'lucide-react';
 
 const Hero = () => {
-
   const [notificationCount, setNotificationCount] = useState(0);
 
-    // Fetch the count of unread notifications
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const { data } = await axios.get('/api/notifications');
-                setNotificationCount(data.length);
-            } catch (error) {
-                console.error('Error fetching notifications:', error);
-            }
-        };
-        fetchNotifications();
-    }, []);
-
-    // Mark notifications as read when clicking on the notification button
-    const handleNotificationsClick = async () => {
-        try {
-            await axios.post('/api/notifications/mark-as-read');
-            setNotificationCount(0); // Reset count once notifications are marked as read
-        } catch (error) {
-            console.error('Error marking notifications as read:', error);
-        }
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const response = await fetch('/api/notifications');
+        const data = await response.json();
+        setNotificationCount(data.length);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
     };
+    fetchNotifications();
+  }, []);
+
+  const handleNotificationsClick = async () => {
+    try {
+      await fetch('/api/notifications/mark-as-read', { method: 'POST' });
+      setNotificationCount(0);
+    } catch (error) {
+      console.error('Error marking notifications as read:', error);
+    }
+  };
 
   return (
-    <section className="bg-gradient-to-br from-blue-900 via-blue-600 to-purple-800 py-24 text-white">
-      <div className="container mx-auto max-w-5xl px-6 text-center">
-        <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-2xl p-10 md:p-14 shadow-2xl transition-transform hover:-translate-y-2 duration-300">
-          <h1 className="text-4xl md:text-5xl font-extrabold mb-4 text-blue-200 tracking-wide">
-            Welcome to Stack Overflow 2.0
-          </h1>
-          <p className="text-lg md:text-xl text-blue-100 mb-8 leading-relaxed">
-            A place for developers to connect, learn, and share their knowledge.
-          </p>
-          <div className="flex flex-wrap justify-center gap-4">
-            <a
-              href="/posts"
-              className="bg-blue-500 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"
-            >
-              View Posts
-            </a>
-            <a
-              href="/create-post"
-              className="bg-green-500 hover:bg-green-700 text-white px-8 py-3 rounded-lg font-semibold shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg"
-            >
-              Create a New Post
-            </a>
-            <button
-              onClick={handleNotificationsClick}
-              href='/notifications'
-              className="relative bg-gray-200 bg-opacity-20 hover:bg-opacity-30 px-6 py-3 rounded-lg font-semibold text-blue-100 shadow-md transition duration-300 ease-in-out transform hover:-translate-y-1 hover:shadow-lg flex items-center"
-            >
-              <FaBell className="mr-2" />
-              Notifications
-              {notificationCount > 0 && (
-                <span className="absolute top-0 right-0 -mt-1 -mr-2 bg-red-600 text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center text-white">
-                  {notificationCount}
+    <div className="relative min-h-[85vh] bg-gradient-to-br from-gray-50 to-white">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-grid-slate-100 [mask-image:linear-gradient(0deg,white,rgba(255,255,255,0.6))] -z-10"></div>
+      
+      {/* Content */}
+      <div className="max-w-6xl mx-auto px-4 pt-32">
+        <div className="flex flex-col items-center text-center">
+          {/* Hero Content */}
+          <div className="max-w-4xl mx-auto pt-20">
+            <h1 className="text-5xl font-bold tracking-tight text-gray-900 mb-6">
+              Your Gateway to
+              <span className="block bg-gradient-to-r from-indigo-600 to-indigo-700 bg-clip-text text-transparent">
+                Developer Knowledge
+              </span>
+            </h1>
+            <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto leading-relaxed">
+              Join a thriving community of developers, share your expertise, and find solutions to your coding challenges.
+            </p>
+            
+            <div className="flex items-center justify-center gap-6">
+              <a
+                href="/posts"
+                className="group px-6 py-3 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg hover:border-indigo-600 hover:text-indigo-600 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                Browse Questions
+                <span className="inline-block transition-transform group-hover:translate-x-1 ml-2">
+                  →
                 </span>
-              )}
-            </button>
+              </a>
+              <a
+                href="/create-post"
+                className="px-6 py-3 text-sm font-medium text-white bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                Ask a Question
+              </a>
+            </div>
+
+            {/* Stats Section */}
+            <div className="mt-20 grid grid-cols-3 gap-8">
+              <div className="p-6 bg-white/50 rounded-xl border border-gray-100 backdrop-blur-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-2">15M+</div>
+                <div className="text-sm text-gray-600">Questions Asked</div>
+              </div>
+              <div className="p-6 bg-white/50 rounded-xl border border-gray-100 backdrop-blur-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-2">23M+</div>
+                <div className="text-sm text-gray-600">Developers</div>
+              </div>
+              <div className="p-6 bg-white/50 rounded-xl border border-gray-100 backdrop-blur-sm">
+                <div className="text-3xl font-bold text-gray-900 mb-2">98%</div>
+                <div className="text-sm text-gray-600">Questions Answered</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
