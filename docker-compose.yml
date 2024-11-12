@@ -11,3 +11,9 @@ services:
             context: ./server/nginx
         ports:
             - "80:80"
+    mongodb:
+        restart: always
+        build:
+            context: ./server/mongodb
+        ports:
+            - "27017:27017"
