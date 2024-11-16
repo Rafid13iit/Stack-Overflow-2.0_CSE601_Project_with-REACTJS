@@ -1,19 +1,46 @@
 version: "3.8"
 services:
+    # Backend
     nodeserver:
+        restart: always
+        depends_on:
+            - mongodb
         build:
             context: ./server/app
         ports:
             - "5000:5000"
+        env_file:
+            - .env
+
+    # Nginx
     nginx:
         restart: always
         build:
             context: ./server/nginx
         ports:
             - "80:80"
+
+    # MongoDB
     mongodb:
-        restart: always
-        build:
-            context: ./server/mongodb
+        image: mongo:latest
+        environment:
+            - MONGODB_INITDB_ROOT_USERNAME=${MONGODB_INITDB_ROOT_USERNAME}
+            - MONGODB_INITDB_ROOT_PASSWORD=${MONGODB_INITDB_ROOT_PASSWORD}
         ports:
             - "27017:27017"
+        volumes:
+            - mongodb_data:/data/db
+
+    # mongodb:
+    #     restart: always
+    #     build:
+    #         context: ./server/mongodb
+    #     ports:
+    #         - "27017:27017"
+
+volumes:
+    mongodb_data:
+
+
+
+
