@@ -51,23 +51,21 @@ const getFileExtension = (language) => {
 
 // Helper function to upload to MinIO and get a public URL
 const uploadToMinIO = async (bucketName, fileName, content, metaData) => {
-  return new Promise((resolve, reject) => {
-    minioClient.putObject(bucketName, fileName, content, metaData, (err) => {
-      if (err) return reject("Error uploading to MinIO: " + err);
-
-      // Generate a presigned URL with long expiration for public access
-      minioClient.presignedUrl(
-        "GET",
-        bucketName,
-        fileName,
-        7 * 24 * 60 * 60,
-        (err, presignedUrl) => {
-          if (err) return reject("Error generating presigned URL: " + err);
-          resolve(presignedUrl);
-        }
-      );
-    });
-  });
+  try {
+    // Upload the object
+    await minioClient.putObject(bucketName, fileName, content, metaData);
+    
+    // Generate presigned URL using promises
+    const presignedUrl = await minioClient.presignedGetObject(
+      bucketName,
+      fileName,
+      7 * 24 * 60 * 60  // 7 days in seconds
+    );
+    
+    return presignedUrl;
+  } catch (error) {
+    throw new Error(`Error in MinIO operations: ${error.message}`);
+  }
 };
 
 // @desc Get all posts with public code snippet URLs for each post
@@ -176,45 +174,60 @@ export const getPostById = async (req, res) => {
   }
 };
 
+
+const getPresignedUrl = async (bucketName, fileName) => {
+  try {
+    return await minioClient.presignedGetObject(
+      bucketName,
+      fileName,
+      7 * 24 * 60 * 60  // 7 days in seconds
+    );
+  } catch (error) {
+    throw new Error(`Error generating presigned URL: ${error.message}`);
+  }
+};
+
+
 export const getCodeSnippetContent = async (req, res) => {
   try {
     const post = await Post.findById(req.params.id);
 
     if (!post || !post.codeSnippet) {
-      return res
-        .status(404)
-        .json({ message: "Post or code snippet not found" });
+      return res.status(404).json({ message: "Post or code snippet not found" });
     }
 
     // Extract the filename from the code snippet URL
     const fileName = post.codeSnippet.split("/").pop();
 
+    // Generate a fresh presigned URL if needed
+    const freshUrl = await getPresignedUrl(process.env.MINIO_BUCKET, fileName);
+    
+    // Update the post with the new URL
+    post.codeSnippet = freshUrl;
+    await post.save();
+
     // Get the object from MinIO
-    minioClient.getObject(
-      process.env.MINIO_BUCKET,
-      fileName,
-      (err, dataStream) => {
-        if (err) {
-          return res
-            .status(500)
-            .json({ message: "Error fetching file from MinIO" });
-        }
+    const dataStream = await minioClient.getObject(process.env.MINIO_BUCKET, fileName);
+    
+    let data = '';
+    
+    dataStream.on('data', chunk => {
+      data += chunk;
+    });
 
-        let data = "";
-        dataStream.on("data", (chunk) => {
-          data += chunk; // Concatenate chunks of data
-        });
+    dataStream.on('end', () => {
+      res.json({ 
+        content: data,
+        url: freshUrl  // Send the fresh URL back to the client
+      });
+    });
 
-        dataStream.on("end", () => {
-          res.json({ content: data }); // Send the content back
-        });
+    dataStream.on('error', error => {
+      res.status(500).json({ message: "Error reading file stream" });
+    });
 
-        dataStream.on("error", (error) => {
-          res.status(500).json({ message: "Error reading file stream" });
-        });
-      }
-    );
   } catch (error) {
+    console.error('Error:', error);
     res.status(500).json({ message: "Server Error" });
   }
 };

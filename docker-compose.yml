@@ -1,51 +1,97 @@
 version: "3.8"
 services:
-    # Backend
-    nodeserver:
+    # User Service
+    user-service:
         restart: always
-        depends_on:
-            - mongodb
         build:
-            context: ./server/app
+            context: ./server/user
         ports:
             - "5000:5000"
+        depends_on:
+            - mongodb
+        environment:
+            - MONGO_URL=mongodb://${MONGODB_INITDB_ROOT_USERNAME}:${MONGODB_INITDB_ROOT_PASSWORD}@mongodb:27017
+            - JWT_SECRET=${JWT_SECRET}
+            - NODE_ENV=${NODE_ENV}
         env_file:
             - .env
 
-    # Nginx
+    # Post Service
+    post-service:
+        restart: always
+        build:
+            context: ./server/post
+        ports:
+            - "5001:5001"
+        depends_on:
+            - mongodb
+            - minio
+        environment:
+            - MONGO_URL=mongodb://${MONGODB_INITDB_ROOT_USERNAME}:${MONGODB_INITDB_ROOT_PASSWORD}@mongodb:27017
+            - JWT_SECRET=${JWT_SECRET}
+            - NODE_ENV=${NODE_ENV}
+            - MINIO_ROOT_USER=${MINIO_ROOT_USER}
+            - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+            - MINIO_ENDPOINT=minio
+            - MINIO_PORT=9000
+            - MINIO_BUCKET=${MINIO_BUCKET}
+        env_file:
+            - .env
+
+    # Notification Service
+    notification-service:
+        restart: always
+        build:
+            context: ./server/notification
+        ports:
+            - "5002:5002"
+        depends_on:
+            - mongodb
+        environment:
+            - MONGO_URL=mongodb://${MONGODB_INITDB_ROOT_USERNAME}:${MONGODB_INITDB_ROOT_PASSWORD}@mongodb:27017
+            - JWT_SECRET=${JWT_SECRET}
+            - NODE_ENV=${NODE_ENV}
+        env_file:
+            - .env
+
+    # Nginx Reverse Proxy
     nginx:
         restart: always
         build:
             context: ./server/nginx
         ports:
             - "80:80"
+        depends_on:
+            - user-service
+            - post-service
+            - notification-service
 
     # MongoDB
     mongodb:
         image: mongo:latest
+        restart: always
         environment:
-            - MONGODB_INITDB_ROOT_USERNAME=${MONGODB_INITDB_ROOT_USERNAME}
-            - MONGODB_INITDB_ROOT_PASSWORD=${MONGODB_INITDB_ROOT_PASSWORD}
+            - MONGO_INITDB_ROOT_USERNAME=${MONGODB_INITDB_ROOT_USERNAME}
+            - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_INITDB_ROOT_PASSWORD}
         ports:
             - "27017:27017"
         volumes:
             - mongodb_data:/data/db
 
-    # minio
+    # MinIO
     minio:
         image: minio/minio:latest
+        restart: always
         environment:
             - MINIO_ROOT_USER=${MINIO_ROOT_USER}
             - MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
         ports:
             - "9000:9000"
-        command: server --address 0.0.0.0:9000 /data
+            - "9001:9001"
+        command: server /data --console-address ":9001"
         volumes:
-            - ./Minio/start:/data
+            - minio_data:/data
 
 volumes:
     mongodb_data:
-
-
-
-
+    minio_data:
