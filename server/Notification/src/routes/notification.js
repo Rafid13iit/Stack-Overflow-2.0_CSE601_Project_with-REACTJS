@@ -4,15 +4,20 @@ import {
     getNotifications, 
     deleteNotification, 
     markNotificationsAsRead, 
-    getUnreadNotificationCount 
+    getUnreadNotificationCount,
+    handleServiceNotification
 } from '../controllers/notification.js';
-import { protect } from '../middleware/authentication.js';
+import { protect, verifyServiceToken } from '../middleware/authentication.js';
 
 const router = express.Router();
 
-router.route('/').get(protect, getNotifications);
-router.route('/unread-count').get(protect, getUnreadNotificationCount);
-router.route('/mark-as-read').post(protect, markNotificationsAsRead);
-router.route('/:id').delete(protect, deleteNotification);
+// User-facing routes
+router.get('/', protect, getNotifications);
+router.get('/unread-count', protect, getUnreadNotificationCount);
+router.post('/mark-as-read', protect, markNotificationsAsRead);
+router.delete('/:id', protect, deleteNotification);
+
+// Service-to-service routes
+router.post('/', verifyServiceToken, handleServiceNotification);
 
 export default router;

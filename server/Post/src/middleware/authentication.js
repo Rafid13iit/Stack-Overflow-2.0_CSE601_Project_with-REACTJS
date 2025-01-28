@@ -1,3 +1,4 @@
+// src/middleware/authentication.js
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
 import User from "../models/user.js";
@@ -25,4 +26,8 @@ const protect = asyncHandler(async (req, res, next) => {
   }
 });
 
-export { protect };
+const generateServiceToken = () => {
+  return jwt.sign({ type: 'service' }, process.env.JWT_SECRET);
+};
+
+export { protect, generateServiceToken };

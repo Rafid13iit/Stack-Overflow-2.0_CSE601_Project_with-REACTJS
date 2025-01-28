@@ -4,6 +4,8 @@ import Post from "../models/post.js";
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
 import axios from 'axios';
+import { createPostNotification } from "../../../Notification/src/controllers/notification.js";
+import { generateServiceToken } from "../middleware/authentication.js";
 
 // Configure multer for file uploads
 const upload = multer({
@@ -148,7 +150,7 @@ export const createPost = [
         );
       }
 
-      // Create the post in MongoDB
+      // Create the post
       const post = new Post({
         user: req.user._id,
         title,
@@ -158,28 +160,45 @@ export const createPost = [
       });
 
       const createdPost = await post.save();
-
-      // Populate the user's name for notification
       await createdPost.populate("user", "name");
 
-      // Send notification to notification service
-      try {
-        await axios.post('http://localhost:5002/api/notifications', {
-          type: 'POST_CREATED',
-          post: createdPost,
-          userId: req.user._id
-        });
-      } catch (notificationError) {
-        console.error("Notification service error:", notificationError);
-        // Continue even if notification fails - non-blocking
-      }
+      // Send notification with retry logic
+      const notifyService = async (retries = 3, delay = 1000) => {
+        try {
+          await axios.post(
+            'http://localhost:5002/api/notifications',
+            {
+              type: 'POST_CREATED',
+              post: createdPost,
+              userId: req.user._id
+            },
+            {
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${generateServiceToken()}`
+              },
+              timeout: 5000
+            }
+          );
+        } catch (error) {
+          if (retries > 0 && (error.code === 'ECONNRESET' || error.code === 'ECONNREFUSED')) {
+            console.log(`Retrying notification... (${retries} attempts left)`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return notifyService(retries - 1, delay * 2);
+          }
+          console.error("Notification service error:", error.message);
+        }
+      };
+
+      // Fire and forget notification
+      notifyService().catch(console.error);
 
       res.status(201).json(createdPost);
     } catch (error) {
       console.error("Error:", error);
       res.status(500).json({ message: "Server Error" });
     }
-  },
+  }
 ];
 
 // @desc Get a single post by ID
