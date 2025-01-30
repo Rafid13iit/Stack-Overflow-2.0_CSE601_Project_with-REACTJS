@@ -4,7 +4,6 @@ import Post from "../models/post.js";
 import { v4 as uuidv4 } from "uuid";
 import multer from "multer";
 import axios from 'axios';
-import { createPostNotification } from "../../../Notification/src/controllers/notification.js";
 import { generateServiceToken } from "../middleware/authentication.js";
 
 // Configure multer for file uploads

@@ -1,0 +1,15 @@
+# Use the official MinIO image as base
+FROM minio/minio:latest
+
+# Set working directory
+WORKDIR /data
+
+# Expose API and Console ports
+EXPOSE 9000 9001
+
+# Set default environment variables
+ENV MINIO_ROOT_USER=minioadmin
+ENV MINIO_ROOT_PASSWORD=minioadmin
+
+# Command to run MinIO server with console
+CMD ["server", "/data", "--console-address", ":9001"]

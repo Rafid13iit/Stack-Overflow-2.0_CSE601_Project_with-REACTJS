@@ -7,6 +7,7 @@ import { notFound, errorHandler } from "./middleware/errorHandle.js";
 import notificationRoutes from "./routes/notification.js";
 import { cleanOldNotifications } from "./controllers/notification.js";
 import cron from "node-cron";
+// import cors from 'cors';
 
 dotenv.config();
 
@@ -15,6 +16,11 @@ const port = process.env.PORT || 5002;
 connectDB();
 
 const app = express();
+
+// app.use(cors({
+//   origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+//   credentials: true
+// }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

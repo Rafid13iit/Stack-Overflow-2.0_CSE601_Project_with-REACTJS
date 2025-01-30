@@ -5,6 +5,7 @@ import connectDB from "./config/db.js";
 import cookieParser from "cookie-parser";
 import { notFound, errorHandler } from "./middleware/errorHandle.js";
 import postRoutes from "./routes/post.js";
+// import cors from 'cors';
 
 dotenv.config();
 
@@ -13,6 +14,11 @@ const port = process.env.PORT || 5001;
 connectDB();
 
 const app = express();
+
+// app.use(cors({
+//     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+//     credentials: true
+//   }));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
